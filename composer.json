@@ -33,7 +33,6 @@
             "BorysZielonka\\ApiStoreProductBundle\\": ""
         }
     },
-    "target-dir": "BorysZielonka/ApiStoreProductBundle",
     "extra": {
         "branch-alias": {
             "dev-master": "1"
