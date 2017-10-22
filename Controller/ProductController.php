@@ -14,6 +14,8 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 class ProductController extends FOSRestController
 {
 
+    const BUNDLE_CLASS_NAME = "BorysZielonkaApiStoreProductBundle:Product";
+
     /**
      *
      * @Rest\Get("api/product")
@@ -21,7 +23,7 @@ class ProductController extends FOSRestController
      */
     public function listAction(Request $request)
     {
-        $productRepo = $this->getDoctrine()->getRepository('BorysZielonkaApiStoreProductBundle:Product');
+        $productRepo = $this->getDoctrine()->getRepository(self::BUNDLE_CLASS_NAME);
         $moreThanAmount = $request->get('moreThanAmount');
         $inStock = $request->get('inStock');
 
@@ -43,37 +45,111 @@ class ProductController extends FOSRestController
     }
 
     /**
-     *
+     * 
      * @Rest\Get("api/product/{id}")
-     * @return $products
+     * @param type $id
+     * @return type
+     * @throws type
      */
-    public function getAction(Request $request)
+    public function getAction($id)
     {
-        
-    }
+        $product = $this->getDoctrine()
+            ->getRepository(self::BUNDLE_CLASS_NAME)
+            ->find($id);
 
-    public function createAction()
-    {
-        
+        if (!$product) {
+            throw $this->createNotFoundException('No product found for id ' . $id);
+        }
+
+        return $product;
     }
 
     /**
-     *
+     * 
+     * @Rest\Post("api/product/")
+     * @param Request $request
+     * @return View
+     * @throws type
+     */
+    public function createAction(Request $request)
+    {
+        $name = $request->get('name');
+        $amount = $request->get('amount');
+
+        if (empty($name) || empty($amount)) {
+            throw $this->createNotFoundException('At least one parameter is empty.');
+        }
+
+        if (!preg_match('/^\d+$/', $amount)) {
+            throw $this->createNotFoundException('Invalid amount. Use digits only.');
+        }
+
+        $product = new Product();
+        $product->setName($name);
+        $product->setAmount($amount);
+
+        $em = $this->getDoctrine()->getManager();
+        $em->persist($product);
+        $em->flush();
+
+        return new View("Product created", Response::HTTP_OK);
+    }
+
+    /**
+     * 
+     * 
      * @Rest\Put("api/product/{id}")
-     * @return $products
+     * @param Request $request
+     * @param type $id
+     * @return View
+     * @throws type
      */
-    public function updateAction(Request $request)
+    public function updateAction(Request $request, $id)
     {
-        
+        $productName = $request->get('name');
+        $productAmount = $request->get('amount');
+        $em = $this->getDoctrine()->getManager();
+        $product = $em->getRepository(self::BUNDLE_CLASS_NAME)->find($id);
+
+        if (!$product) {
+            throw $this->createNotFoundException('No product found with id ' . $id);
+        }
+        if (empty($productName) && empty($productAmount)) {
+            throw $this->createNotFoundException('Nothing to update for product ' . $id);
+        }
+
+        if (isset($productName)) {
+            $product->setName($productName);
+        }
+        if (isset($productAmount)) {
+            $product->setAmount($productAmount);
+        }
+
+        $em->flush();
+
+        return new View("Product " . $id . " updated", Response::HTTP_OK);
     }
 
     /**
-     *
+     * 
      * @Rest\Delete("api/product/{id}")
-     * @return $products
+     * @param type $id
+     * @return View
+     * @throws type
      */
-    public function deleteAction(Request $request)
+    public function deleteAction($id)
     {
-        
+        $em = $this->getDoctrine()->getManager();
+        $productRepo = $em->getRepository(self::BUNDLE_CLASS_NAME);
+        $product = $productRepo->find($id);
+
+        if (!$product) {
+            throw $this->createNotFoundException('No product found for id ' . $id);
+        }
+
+        $em->remove($product);
+        $em->flush();
+
+        return new View("Product " . $id . " deleted", Response::HTTP_OK);
     }
 }
