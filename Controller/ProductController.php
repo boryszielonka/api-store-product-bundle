@@ -18,7 +18,7 @@ class ProductController extends FOSRestController
 
     /**
      *
-     * @Rest\Get("api/product")
+     * @Rest\Get("api/product/")
      * @return View | $products
      */
     public function listAction(Request $request)
@@ -37,10 +37,13 @@ class ProductController extends FOSRestController
         if ($moreThanAmount >= 0) {
             $products = $productRepo->getProductListByMoreThanAmount($moreThanAmount);
         }
-        if ($inStock) {
+        if ($inStock != NULL) {
             $products = $productRepo->getProductListByAvailability($inStock);
         }
-
+        if (empty($products) && !$moreThanAmount && !$inStock) {
+            $products = $productRepo->findAll();
+        }
+        
         return $products;
     }
 
@@ -76,7 +79,7 @@ class ProductController extends FOSRestController
         $name = $request->get('name');
         $amount = $request->get('amount');
 
-        if (empty($name) || empty($amount)) {
+        if (empty($name) || $amount == NULL) {
             throw $this->createNotFoundException('At least one parameter is empty.');
         }
 

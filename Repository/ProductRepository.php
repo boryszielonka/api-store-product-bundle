@@ -13,7 +13,7 @@ class ProductRepository extends \Doctrine\ORM\EntityRepository
     public function getProductListByMoreThanAmount($MoreThanAmount)
     {
         $queryBuilder = $this->createQueryBuilder('p');
-        $queryBuilder->select('p, p.name, p.amount');
+        $queryBuilder->select('p, p.id, p.name, p.amount');
         $queryBuilder->where('p.amount > :amount');
         $queryBuilder->setParameter('amount', $MoreThanAmount);
 
@@ -23,11 +23,13 @@ class ProductRepository extends \Doctrine\ORM\EntityRepository
     public function getProductListByAvailability($inStock)
     {
         $queryBuilder = $this->createQueryBuilder('p');
-        $queryBuilder->select('p, p.name, p.amount');
+        $queryBuilder->select('p.id, p.name, p.amount');
         if ($inStock) {
+            error_log('niesuper');
             $queryBuilder->where('p.amount >= 1');
         } else {
-            $queryBuilder->where('p.amount < 1');
+            error_log('super');
+            $queryBuilder->where('p.amount = 0');
         }
         
         return $queryBuilder->getQuery()->getResult();
