@@ -1,10 +1,10 @@
-AppKernel
+app/AppKernel.php
 ```php
 new BorysZielonka\ApiStoreProductBundle\BorysZielonkaApiStoreProductBundle()
 ```
 
 
-routing
+app/config/routing.yml
 ```yml
     borys_zielonka_api_store_product:
         resource: "@BorysZielonkaApiStoreProductBundle/Controller/"
@@ -13,8 +13,7 @@ routing
 ```
 
 
-config.yml
-
+app/config/config.yml
 ```yml
 fos_rest:
     body_listener: true
@@ -57,10 +56,22 @@ composer require boryszielonka/api-store-product-bundle dev-develop
 composer require --dev doctrine/doctrine-fixtures-bundle
 ```
 
+```
+bin/console doctrine:database:create
+bin/console doctrine:schema:create
+```
+
 INSERT records to database
 ```sh
 bin/console doctrine:fixtures:load
 ```
 or
 
+```sql
+bin/console doctrine:query:sql "INSERT INTO product (name, amount) VALUES ('Produkt 1',  4)"
+bin/console doctrine:query:sql "INSERT INTO product (name, amount) VALUES ('Produkt 2',  12)"
+bin/console doctrine:query:sql "INSERT INTO product (name, amount) VALUES ('Produkt 5',  0)"
+bin/console doctrine:query:sql "INSERT INTO product (name, amount) VALUES ('Produkt 7',  6)"
+bin/console doctrine:query:sql "INSERT INTO product (name, amount) VALUES ('Produkt 8',  2)"
+```
 
