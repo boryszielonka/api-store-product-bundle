@@ -7,8 +7,6 @@ use FOS\RestBundle\View\View;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use BorysZielonka\ApiStoreProductBundle\Entity\Product;
-use Doctrine\ORM\EntityManager;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class ProductController extends FOSRestController

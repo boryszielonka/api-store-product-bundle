@@ -10,25 +10,33 @@ namespace BorysZielonka\ApiStoreProductBundle\Repository;
 class ProductRepository extends \Doctrine\ORM\EntityRepository
 {
 
+    /**
+     * 
+     * @param type $MoreThanAmount
+     * @return type
+     */
     public function getProductListByMoreThanAmount($MoreThanAmount)
     {
         $queryBuilder = $this->createQueryBuilder('p');
-        $queryBuilder->select('p, p.id, p.name, p.amount');
+        $queryBuilder->select('p.id, p.name, p.amount');
         $queryBuilder->where('p.amount > :amount');
         $queryBuilder->setParameter('amount', $MoreThanAmount);
 
         return $queryBuilder->getQuery()->getResult();
     }
 
+    /**
+     * 
+     * @param type $inStock
+     * @return type
+     */
     public function getProductListByAvailability($inStock)
     {
         $queryBuilder = $this->createQueryBuilder('p');
         $queryBuilder->select('p.id, p.name, p.amount');
         if ($inStock) {
-            error_log('niesuper');
             $queryBuilder->where('p.amount >= 1');
         } else {
-            error_log('super');
             $queryBuilder->where('p.amount = 0');
         }
         
