@@ -1,6 +1,4 @@
 services:
-#    borys_zielonka_api_store_product.example:
-#        class: BorysZielonka\ApiStoreProductBundle\Example
-#        arguments: ["@service_id", "plain_value", "%parameter%"]
-#    fos_rest.view_handler:
-#        alias: fos_rest.view_handler.default
+    BorysZielonka\ApiStoreProductBundle\Service\ProductService:
+        class: BorysZielonka\ApiStoreProductBundle\Service\ProductService
+        arguments: ["@doctrine.orm.entity_manager"]

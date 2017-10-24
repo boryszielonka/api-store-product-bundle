@@ -1,18 +1,15 @@
 <?php
 namespace BorysZielonka\ApiStoreProductBundle\Controller;
 
+use BorysZielonka\ApiStoreProductBundle\Service\ProductService;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use FOS\RestBundle\Controller\FOSRestController;
 use FOS\RestBundle\View\View;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use BorysZielonka\ApiStoreProductBundle\Entity\Product;
-use Symfony\Component\HttpKernel\Exception\HttpException;
 
 class ProductController extends FOSRestController
 {
-
-    const BUNDLE_CLASS_NAME = "BorysZielonkaApiStoreProductBundle:Product";
 
     /**
      *
@@ -21,27 +18,11 @@ class ProductController extends FOSRestController
      */
     public function listAction(Request $request)
     {
-        $productRepo = $this->getDoctrine()->getRepository(self::BUNDLE_CLASS_NAME);
         $moreThanAmount = $request->get('moreThanAmount');
         $inStock = $request->get('inStock');
 
-        if ($moreThanAmount >= 0 &&
-            $moreThanAmount !== NULL &&
-            $inStock == 0 &&
-            $inStock !== NULL) {
-            throw new HttpException(400, "Invalid parameters");
-        }
-
-        if ($moreThanAmount >= 0) {
-            $products = $productRepo->getProductListByMoreThanAmount($moreThanAmount);
-        }
-        if ($inStock != NULL) {
-            $products = $productRepo->getProductListByAvailability($inStock);
-        }
-        if (empty($products) && !$moreThanAmount && !$inStock) {
-            $products = $productRepo->findAll();
-        }
-        
+        $productService = $this->get(ProductService::class);
+        $products = $productService->findProductList($moreThanAmount, $inStock);
         return $products;
     }
 
@@ -54,13 +35,8 @@ class ProductController extends FOSRestController
      */
     public function getAction($id)
     {
-        $product = $this->getDoctrine()
-            ->getRepository(self::BUNDLE_CLASS_NAME)
-            ->find($id);
-
-        if (!$product) {
-            throw $this->createNotFoundException('No product found for id ' . $id);
-        }
+        $productService = $this->get(ProductService::class);
+        $product = $productService->findProductById($id);
 
         return $product;
     }
@@ -77,21 +53,8 @@ class ProductController extends FOSRestController
         $name = $request->get('name');
         $amount = $request->get('amount');
 
-        if (empty($name) || $amount == NULL) {
-            throw $this->createNotFoundException('At least one parameter is empty.');
-        }
-
-        if (!preg_match('/^\d+$/', $amount)) {
-            throw $this->createNotFoundException('Invalid amount. Use digits only.');
-        }
-
-        $product = new Product();
-        $product->setName($name);
-        $product->setAmount($amount);
-
-        $em = $this->getDoctrine()->getManager();
-        $em->persist($product);
-        $em->flush();
+        $productService = $this->get(ProductService::class);
+        $productService->createProduct($name, $amount);
 
         return new View("Product created", Response::HTTP_OK);
     }
@@ -109,24 +72,9 @@ class ProductController extends FOSRestController
     {
         $productName = $request->get('name');
         $productAmount = $request->get('amount');
-        $em = $this->getDoctrine()->getManager();
-        $product = $em->getRepository(self::BUNDLE_CLASS_NAME)->find($id);
 
-        if (!$product) {
-            throw $this->createNotFoundException('No product found with id ' . $id);
-        }
-        if (empty($productName) && empty($productAmount)) {
-            throw $this->createNotFoundException('Nothing to update for product ' . $id);
-        }
-
-        if (isset($productName)) {
-            $product->setName($productName);
-        }
-        if (isset($productAmount)) {
-            $product->setAmount($productAmount);
-        }
-
-        $em->flush();
+        $productService = $this->get(ProductService::class);
+        $productService->updateProduct($productName, $productAmount, $id);
 
         return new View("Product " . $id . " updated", Response::HTTP_OK);
     }
@@ -140,16 +88,8 @@ class ProductController extends FOSRestController
      */
     public function deleteAction($id)
     {
-        $em = $this->getDoctrine()->getManager();
-        $productRepo = $em->getRepository(self::BUNDLE_CLASS_NAME);
-        $product = $productRepo->find($id);
-
-        if (!$product) {
-            throw $this->createNotFoundException('No product found for id ' . $id);
-        }
-
-        $em->remove($product);
-        $em->flush();
+        $productService = $this->get(ProductService::class);
+        $productService->deleteProduct($id);
 
         return new View("Product " . $id . " deleted", Response::HTTP_OK);
     }
