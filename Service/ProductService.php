@@ -39,20 +39,19 @@ class ProductService
     public function findProductList($moreThanAmount, $inStock)
     {
         $productRepo = $this->entityManager->getRepository(self::BUNDLE_CLASS_NAME);
-        if ($moreThanAmount >= 0 &&
-            $moreThanAmount !== NULL &&
-            $inStock == 0 &&
-            $inStock !== NULL) {
-            throw new HttpException(400, "Invalid parameters");
+        $products = [];
+        if (isset($moreThanAmount)) {
+            if ($inStock === '0') {
+                throw new HttpException(400, "Invalid parameters");
+            }
+            $products = array_merge($products, $productRepo->getProductListByMoreThanAmount($moreThanAmount));
         }
 
-        if ($moreThanAmount >= 0) {
-            $products = $productRepo->getProductListByMoreThanAmount($moreThanAmount);
+        if (isset($inStock)) {
+            $products = array_merge($products, $productRepo->getProductListByAvailability($inStock));
         }
-        if ($inStock != NULL) {
-            $products = $productRepo->getProductListByAvailability($inStock);
-        }
-        if (empty($products) && !$moreThanAmount && !$inStock) {
+
+        if (empty($products)) {
             $products = $productRepo->findAll();
         }
 
@@ -103,7 +102,7 @@ class ProductService
         $this->entityManager->persist($product);
         $this->entityManager->flush();
     }
-    
+
     /**
      * 
      * @param type $productName
@@ -133,14 +132,14 @@ class ProductService
 
         $em->flush();
     }
-    
+
     /**
      * 
      * @param type $id
      * @throws HttpException
      * @return void
      */
-    public function deleteProduct($id) 
+    public function deleteProduct($id)
     {
         $em = $this->entityManager;
         $productRepo = $em->getRepository(self::BUNDLE_CLASS_NAME);
