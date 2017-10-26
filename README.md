@@ -31,7 +31,7 @@ nelmio_cors:
         allow_credentials: false
         allow_origin: ['*']
         allow_headers: ['*']
-        allow_methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
+        allow_methods: ['GET', 'POST', 'PUT', 'DELETE']
         max_age: 0
         hosts: []
         origin_regex: false
