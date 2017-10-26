@@ -67,9 +67,8 @@ class ProductService
      */
     public function findProductById($id)
     {
-        $product = $this->entityManager
-            ->getRepository(self::BUNDLE_CLASS_NAME)
-            ->find($id);
+        $productRepo = $this->entityManager->getRepository(self::BUNDLE_CLASS_NAME);
+        $product = $productRepo->find($id);
 
         if (!$product) {
             throw new HttpException(404, 'No product found for id ' . $id);
@@ -83,7 +82,7 @@ class ProductService
      * @param type $name
      * @param type $amount
      * @throws HttpException
-     * @return void
+     * @return bool
      */
     public function createProduct($name, $amount)
     {
@@ -101,6 +100,8 @@ class ProductService
 
         $this->entityManager->persist($product);
         $this->entityManager->flush();
+
+        return true;
     }
 
     /**
@@ -109,12 +110,13 @@ class ProductService
      * @param type $productAmount
      * @param type $id
      * @throws HttpException
-     * @return void
+     * @return bool
      */
     public function updateProduct($productName, $productAmount, $id)
     {
         $em = $this->entityManager;
-        $product = $em->getRepository(self::BUNDLE_CLASS_NAME)->find($id);
+        $productRepo = $em->getRepository(self::BUNDLE_CLASS_NAME);
+        $product = $productRepo->find($id);
 
         if (!$product) {
             throw new HttpException(404, 'No product found for id ' . $id);
@@ -131,13 +133,14 @@ class ProductService
         }
 
         $em->flush();
+        return true;
     }
 
     /**
      * 
      * @param type $id
      * @throws HttpException
-     * @return void
+     * @return bool
      */
     public function deleteProduct($id)
     {
@@ -151,5 +154,7 @@ class ProductService
 
         $em->remove($product);
         $em->flush();
+        
+        return true;
     }
 }

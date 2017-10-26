@@ -54,6 +54,8 @@ composer require jms/serializer-bundle
 composer require nelmio/cors-bundle
 composer require boryszielonka/api-store-product-bundle dev-develop
 composer require --dev doctrine/doctrine-fixtures-bundle
+composer require --dev phpunit/phpunit 5.6
+composer require --dev symfony/phpunit-bridge ^3.0
 ```
 
 ```

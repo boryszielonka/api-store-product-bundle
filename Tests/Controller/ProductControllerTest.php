@@ -1,55 +1,89 @@
 <?php
-
 namespace BorysZielonka\ApiStoreProductBundle\Tests\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 class ProductControllerTest extends WebTestCase
 {
-    /*
-    public function testCompleteScenario()
+
+    public function testListAction()
     {
-        // Create a new client to browse the application
+        $request = $this->getMockBuilder('Symfony\Component\HttpFoundation\Request')
+            ->setMethods(array('get'))
+            ->disableOriginalConstructor()
+            ->getMock();
+
         $client = static::createClient();
+        $client->request('GET', '/api/product/');
+        $this->assertEquals(
+            200, $client->getResponse()->getStatusCode()
+        );
 
-        // Create a new entry in the database
-        $crawler = $client->request('GET', '/api/product/');
-        $this->assertEquals(200, $client->getResponse()->getStatusCode(), "Unexpected HTTP status code for GET /api/product/");
-        $crawler = $client->click($crawler->selectLink('Create a new entry')->link());
+        $client->request('GET', '/api/product/?moreThanAmount=1&inStock=0');
+        $this->assertEquals(
+            400, $client->getResponse()->getStatusCode()
+        );
 
-        // Fill in the form and submit it
-        $form = $crawler->selectButton('Create')->form(array(
-            'boryszielonka_apistoreproductbundle_product[field_name]'  => 'Test',
-            // ... other fields to fill
-        ));
-
-        $client->submit($form);
-        $crawler = $client->followRedirect();
-
-        // Check data in the show view
-        $this->assertGreaterThan(0, $crawler->filter('td:contains("Test")')->count(), 'Missing element td:contains("Test")');
-
-        // Edit the entity
-        $crawler = $client->click($crawler->selectLink('Edit')->link());
-
-        $form = $crawler->selectButton('Update')->form(array(
-            'boryszielonka_apistoreproductbundle_product[field_name]'  => 'Foo',
-            // ... other fields to fill
-        ));
-
-        $client->submit($form);
-        $crawler = $client->followRedirect();
-
-        // Check the element contains an attribute with value equals "Foo"
-        $this->assertGreaterThan(0, $crawler->filter('[value="Foo"]')->count(), 'Missing element [value="Foo"]');
-
-        // Delete the entity
-        $client->submit($crawler->selectButton('Delete')->form());
-        $crawler = $client->followRedirect();
-
-        // Check the entity has been delete on the list
-        $this->assertNotRegExp('/Foo/', $client->getResponse()->getContent());
+        $client->request('POST', '/api/product/');
+        $this->assertEquals(
+            400, $client->getResponse()->getStatusCode()
+        );
     }
 
-    */
+    public function testGetAction()
+    {
+        $client = static::createClient();
+        $client->request('GET', '/api/product/', [7]);
+        $this->assertEquals(
+            200, $client->getResponse()->getStatusCode()
+        );
+    }
+
+    public function testCreateAction()
+    {
+        $product = [
+            'name' => 'asdasd',
+            'amount' => 3
+        ];
+
+        $client = static::createClient();
+        $client->request('POST', '/api/product/', $product);
+        $this->assertEquals(
+            200, $client->getResponse()->getStatusCode()
+        );
+
+        $product = [
+            'name' => 'asdasd',
+            'amount' => null
+        ];
+
+        $client = static::createClient();
+        $client->request('POST', '/api/product/', $product);
+        $this->assertEquals(
+            400, $client->getResponse()->getStatusCode()
+        );
+    }
+
+    public function testUpdateAction()
+    {
+        $product = [
+            'name' => 'test',
+            'amount' => 2
+        ];
+
+        $client = static::createClient();
+        $client->request('PUT', '/api/product/2323423ddddddd4234', $product);
+        $this->assertEquals(
+            404, $client->getResponse()->getStatusCode()
+        );
+    }
+
+    public function testDeleteAction()
+    {
+        $client = static::createClient();
+        $client->request('DELETE', '/api/product/');
+        $this->assertEquals(
+            405, $client->getResponse()->getStatusCode()
+        );
+    }
 }
